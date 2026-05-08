@@ -1,0 +1,41 @@
+{
+  "common": {
+    "home": "Home",
+    "complaints": "Complaints",
+    "transparency": "Transparency",
+    "dashboard": "Dashboard",
+    "leaderboard": "Leaderboard",
+    "ai_verification": "AI Verification",
+    "how_it_works": "How it Works",
+    "language": "Language",
+    "roads": "Roads",
+    "water": "Water",
+    "electricity": "Electricity",
+    "garbage": "Garbage",
+    "drainage": "Drainage",
+    "streetlights": "Streetlights",
+    "transport": "Transport",
+    "other": "Other"
+  },
+  "hero": {
+    "badge": "Modernizing Governance",
+    "title_part1": "Turning civic voices into",
+    "title_part2": "visible action",
+    "subtitle": "Connecting citizens directly with government bodies (BBMP, BESCOM, BWSSB) through real-time tracking, transparency, and AI-driven accountability.",
+    "submit_btn": "Submit Complaint",
+    "track_btn": "Track Progress"
+  },
+  "ai": {
+    "title": "AI Civic Verification Engine",
+    "subtitle": "Real-time intelligent complaint validation for transparent governance.",
+    "console_title": "Analysis Console",
+    "placeholder": "Describe your civic issue in detail...",
+    "upload": "Click to upload image",
+    "analyze_btn": "Analyze Complaint",
+    "trust_score": "Trust Score",
+    "fake_detection": "Fake Detection",
+    "risk_assessment": "Risk Assessment",
+    "routing": "Department Routing",
+    "recommendations": "AI Recommendations"
+  }
+}
