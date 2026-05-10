@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { 
-  LogOut, 
-  Settings, 
-  Users, 
-  AlertCircle, 
-  Activity, 
-  MapPin, 
+import {
+  LogOut,
+  Settings,
+  Users,
+  AlertCircle,
+  Activity,
+  MapPin,
   Search,
   Bell,
   CheckCircle2,
@@ -21,8 +21,6 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-const supabase = createClient();
-
 const GlassCard = ({ children, className }: { children: React.ReactNode, className?: string }) => (
   <div className={`glass border border-white/20 bg-white/40 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl shadow-black/5 ${className}`}>
     {children}
@@ -30,6 +28,7 @@ const GlassCard = ({ children, className }: { children: React.ReactNode, classNa
 );
 
 export default function AdminDashboardClient({ user }: { user: any }) {
+  const supabase = createClient();
   const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,7 +41,7 @@ export default function AdminDashboardClient({ user }: { user: any }) {
     if (!isLoaded) return;
 
     const tl = gsap.timeline();
-    
+
     tl.from('.dashboard-reveal', {
       y: 40,
       opacity: 0,
@@ -92,7 +91,7 @@ export default function AdminDashboardClient({ user }: { user: any }) {
 
   return (
     <div className="relative min-h-screen w-full bg-[#FAFAFA] overflow-hidden font-inter flex flex-col md:flex-row">
-      
+
       {/* Cinematic Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden fixed">
         <div className="blob-1 absolute top-[-10%] left-[-10%] w-[800px] h-[800px] bg-blue-400/10 rounded-full blur-[150px] mix-blend-multiply" />
@@ -121,13 +120,12 @@ export default function AdminDashboardClient({ user }: { user: any }) {
               { icon: Users, label: 'Citizens' },
               { icon: Settings, label: 'Settings' }
             ].map((item, i) => (
-              <button 
-                key={i} 
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all ${
-                  item.active 
-                    ? 'bg-black text-white shadow-lg' 
+              <button
+                key={i}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all ${item.active
+                    ? 'bg-black text-white shadow-lg'
                     : 'text-black/60 hover:bg-white/50 hover:text-black'
-                }`}
+                  }`}
               >
                 <item.icon size={18} />
                 <span className="text-sm font-bold">{item.label}</span>
@@ -145,7 +143,7 @@ export default function AdminDashboardClient({ user }: { user: any }) {
                 <div className="text-[10px] text-black/40 truncate">{user?.email}</div>
               </div>
             </div>
-            <button 
+            <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-red-500 hover:bg-red-50 hover:text-red-600 transition-all font-bold text-sm"
             >
@@ -159,7 +157,7 @@ export default function AdminDashboardClient({ user }: { user: any }) {
       {/* Main Content */}
       <main className="flex-1 p-6 pt-0 md:pt-6 z-10">
         <div className="max-w-6xl mx-auto space-y-8">
-          
+
           {/* Header */}
           <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 dashboard-reveal">
             <div>
@@ -169,9 +167,9 @@ export default function AdminDashboardClient({ user }: { user: any }) {
             <div className="flex items-center gap-4 w-full md:w-auto">
               <div className="relative flex-1 md:w-64">
                 <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-black/30" />
-                <input 
-                  type="text" 
-                  placeholder="Search Complaints..." 
+                <input
+                  type="text"
+                  placeholder="Search Complaints..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-white/40 border border-black/5 rounded-full py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:bg-white transition-all backdrop-blur-md"
@@ -205,7 +203,7 @@ export default function AdminDashboardClient({ user }: { user: any }) {
               <h3 className="font-instrument text-3xl">Recent Activity</h3>
               <button className="text-sm font-bold text-black/60 hover:text-black transition-colors">View All</button>
             </div>
-            
+
             <div className="space-y-4">
               {recentActivity.map((activity, i) => (
                 <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border border-black/5 bg-white/20 hover:bg-white/40 transition-all gap-4">
@@ -218,14 +216,13 @@ export default function AdminDashboardClient({ user }: { user: any }) {
                       <div className="text-xs text-black/50">{activity.location}</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between sm:justify-end gap-6 sm:w-1/2">
                     <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${
-                        activity.status === 'Resolved' ? 'bg-green-500' :
-                        activity.status === 'In Progress' ? 'bg-blue-500' :
-                        'bg-orange-500'
-                      }`}></span>
+                      <span className={`w-2 h-2 rounded-full ${activity.status === 'Resolved' ? 'bg-green-500' :
+                          activity.status === 'In Progress' ? 'bg-blue-500' :
+                            'bg-orange-500'
+                        }`}></span>
                       <span className="text-xs font-bold text-black/60">{activity.status}</span>
                     </div>
                     <div className="text-xs text-black/40">{activity.time}</div>
@@ -243,4 +240,4 @@ export default function AdminDashboardClient({ user }: { user: any }) {
 
     </div>
   );
-}
+} 

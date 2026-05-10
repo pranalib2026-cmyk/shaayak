@@ -1,23 +1,26 @@
 import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createServerClient } from '@/lib/supabase/server';
+import { createClient as createAdminClient } from '@supabase/supabase-js';
 
 export async function GET(req: Request) {
   try {
-    const supabase = createClient();
+    const supabase = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { db: { schema: 'public' } }
+    );
     const { searchParams } = new URL(req.url);
     const complaintId = searchParams.get('id');
 
     if (complaintId) {
-      // Fetch specific complaint with related data
       const { data: complaint, error } = await supabase
         .from('complaints')
         .select(`
           *,
-          complaint_media (*),
-          complaint_updates (*)
+          complaint_media (*)
         `)
-        .eq('complaint_id', complaintId)
+        .eq('id', complaintId)
         .single();
 
       if (error) {
@@ -27,10 +30,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: true, complaint });
     }
 
-    // Fetch all complaints for heatmap/dashboard
     const { data: complaints, error } = await supabase
       .from('complaints')
-      .select('*')
+      .select(`
+        *,
+        complaint_media (*),
+        complaint_updates (*)
+      `)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -46,46 +52,59 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const supabase = createClient();
+    console.log('SUPABASE URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('SERVICE KEY SET:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+    const supabaseAdmin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { db: { schema: 'public' } }
+    );
+    
+    // Auth client to verify user
+    const supabaseAuth = createServerClient();
     const formData = await req.formData();
     
     // Auth check
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabaseAuth.auth.getUser();
     
+    const title = formData.get('title') as string || 'Civic Issue';
     const category = formData.get('category') as string;
     const description = formData.get('description') as string;
-    const language = formData.get('language') as string || 'EN';
-    const location_lat = formData.get('location_lat') ? parseFloat(formData.get('location_lat') as string) : null;
-    const location_lng = formData.get('location_lng') ? parseFloat(formData.get('location_lng') as string) : null;
+    const latitude = formData.get('latitude') ? parseFloat(formData.get('latitude') as string) : null;
+    const longitude = formData.get('longitude') ? parseFloat(formData.get('longitude') as string) : null;
     const is_anonymous = formData.get('is_anonymous') === 'true';
-    
+    const trust_score = formData.get('trust_score') ? parseInt(formData.get('trust_score') as string) : 50;
+    const priority = formData.get('priority') as string || 'Medium';
+    const is_duplicate = formData.get('is_duplicate') === 'true';
+    const duplicate_of = formData.get('duplicate_of') as string || null;
+    const ward = formData.get('ward') as string || null;
+    const city = formData.get('city') as string || null;
+    const address = formData.get('address') as string || null;
+
     if (!category || !description) {
       return NextResponse.json({ error: 'Category and description are required' }, { status: 400 });
     }
 
-    // Generate unique complaint ID (e.g. KA-2024-XXXX)
-    const year = new Date().getFullYear();
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const complaint_id = `KA-${year}-${randomNum}`;
-    
-    // Mock Trust Score (AI simulation)
-    const trust_score = Math.floor(60 + Math.random() * 35); 
-    
     // Insert Complaint
-    const { data: complaint, error: complaintError } = await supabase
+    const { data: complaint, error: complaintError } = await supabaseAdmin
       .from('complaints')
       .insert({
-        complaint_id,
-        user_id: is_anonymous ? null : user?.id,
-        category,
+        title,
         description,
-        language,
-        location_lat,
-        location_lng,
-        is_anonymous,
+        category,
+        status: 'Pending',
+        priority,
         trust_score,
-        status: 'pending',
-        priority: 'medium'
+        latitude,
+        longitude,
+        address,
+        ward,
+        city,
+        upvotes: 0,
+        is_duplicate,
+        duplicate_of,
+        user_id: is_anonymous ? null : user?.id
       })
       .select()
       .single();
@@ -104,12 +123,12 @@ export async function POST(req: Request) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${complaint.id}/${Math.random().toString(36).substring(2)}.${fileExt}`;
         
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
           .from('complaints')
           .upload(fileName, file);
           
         if (!uploadError && uploadData) {
-          const { data: { publicUrl } } = supabase.storage
+          const { data: { publicUrl } } = supabaseAdmin.storage
             .from('complaints')
             .getPublicUrl(fileName);
             
@@ -118,14 +137,20 @@ export async function POST(req: Request) {
             media_url: publicUrl,
             media_type: file.type.startsWith('video') ? 'video' : 'image'
           });
+        } else {
+          console.error("Storage upload error:", uploadError);
         }
       }
     }
     
     if (mediaInserts.length > 0) {
-      await supabase
+      const { error: mediaError } = await supabaseAdmin
         .from('complaint_media')
         .insert(mediaInserts);
+        
+      if (mediaError) {
+         console.error("Media DB insert error:", mediaError);
+      }
     }
     
     return NextResponse.json({ success: true, complaint });

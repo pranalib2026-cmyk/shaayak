@@ -7,6 +7,7 @@
     "leaderboard": "Leaderboard",
     "ai_verification": "AI Verification",
     "how_it_works": "How it Works",
+    "reports_page": "Reports",
     "language": "Language",
     "roads": "Roads",
     "water": "Water",
@@ -15,7 +16,30 @@
     "drainage": "Drainage",
     "streetlights": "Streetlights",
     "transport": "Transport",
-    "other": "Other"
+    "other": "Other",
+    "total_reports": "Total Reports"
+  },
+  "reports": {
+    "title": "Total Reports",
+    "subtitle": "Public dashboard of all civic grievances filed across Karnataka.",
+    "stats": {
+      "total": "Total Complaints",
+      "resolved": "Total Resolved",
+      "pending": "Total Pending",
+      "in_progress": "In Progress"
+    },
+    "filters": {
+      "status": "Filter by Status",
+      "department": "Filter by Department",
+      "search": "Search complaints...",
+      "sort": "Sort by",
+      "all": "All"
+    },
+    "card": {
+      "id": "ID",
+      "score": "Trust Score",
+      "anonymous": "Anonymous"
+    }
   },
   "hero": {
     "badge": "Modernizing Governance",

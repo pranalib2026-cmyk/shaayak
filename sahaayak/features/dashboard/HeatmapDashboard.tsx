@@ -135,6 +135,7 @@ import { createClient } from '@/lib/supabase/client';
 
 export default function HeatmapDashboard() {
   const supabase = createClient();
+  const [mounted, setMounted] = useState(false);
   const [complaints, setComplaints] = useState<any[]>([]);
   const [viewState, setViewState] = useState({
     latitude: 12.9716,
@@ -162,6 +163,7 @@ export default function HeatmapDashboard() {
 
   // Real Data Fetching + Realtime
   useEffect(() => {
+    setMounted(true);
     const fetchInitial = async () => {
       const res = await fetch('/api/complaints');
       const data = await res.json();
@@ -209,9 +211,9 @@ export default function HeatmapDashboard() {
   }, { scope: dashboardRef });
 
   const stats = useMemo(() => {
-    const resolved = 12847 + Math.floor(Math.random() * 10);
+    const resolved = mounted ? 12847 + Math.floor(Math.random() * 10) : 12850;
     return { resolved, avgTime: '3.2 Days', efficiency: '94%', active: complaints.length };
-  }, [complaints]);
+  }, [complaints, mounted]);
 
   const filteredComplaints = useMemo(() => {
     if (activeDept === 'All') return complaints;
@@ -441,7 +443,7 @@ export default function HeatmapDashboard() {
                   <div className="w-1.5 h-1.5 rounded-full bg-black/10" />
                   <span className="text-[11px] font-medium text-black/60">{city.name}</span>
                 </div>
-                <span className="text-[10px] font-bold text-black/20">{Math.floor(Math.random() * 50) + 10} Fixed</span>
+                <span className="text-[10px] font-bold text-black/20">{mounted ? Math.floor(Math.random() * 50) + 10 : 42} Fixed</span>
               </div>
             ))}
           </div>

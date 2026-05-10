@@ -46,7 +46,7 @@ export default function LeaderboardPage() {
     <main className="relative min-h-screen w-full bg-[#0a0a0c] text-white font-inter">
       <Navbar />
       
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-20">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 pt-32 pb-20">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-6">
             <Trophy className="w-4 h-4 text-yellow-500" />

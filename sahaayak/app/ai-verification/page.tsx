@@ -61,37 +61,54 @@ export default function AIVerificationPage() {
 
       const data = await response.json();
       if (data.success) {
-        setResults({ 
+        // API returns: trust_score, issue_type, department, is_duplicate, duplicate_of,
+        // recommendations, analysis (with severity, confidence, department, issueType)
+        const analysis = data.analysis || {};
+        const trustScore = data.trust_score ?? 70;
+        const fakeProbability = Math.max(0, 100 - trustScore);
+        const severity = analysis.severity || 'Moderate';
+        const department = analysis.department || data.department || 'General';
+        const issueType = analysis.issueType || data.issue_type || 'General';
+        const confidence = analysis.confidence ?? 80;
+        const duplicateMatches = data.is_duplicate
+          ? [{ id: data.duplicate_of, similarity: 90 }]
+          : [];
+
+        setResults({
           analyze: {
             textAnalysis: {
-              severity: data.severity,
-              category: data.issueType,
-              department: data.department,
-              confidence: data.confidence
+              severity,
+              category: issueType,
+              department,
+              confidence,
             },
             mediaAnalysis: {
-              detectedObjects: data.issueType !== 'Other' ? [{ object: data.issueType, confidence: data.confidence }] : [],
-              damageHighlight: 'Structural issue detected.'
+              detectedObjects: issueType !== 'Other'
+                ? [{ object: issueType, confidence }]
+                : [],
+              damageHighlight: 'Structural issue detected.',
             },
             riskAnalysis: {
-              areaDangerProbability: data.severity === 'Critical' ? 95 : 60,
-              citizenImpactScore: data.trustScore,
-              escalationUrgency: data.severity === 'Critical' ? 'Immediate' : 'Standard',
-              slaBreachRisk: data.severity === 'Critical' ? 'High' : 'Low'
-            }
+              areaDangerProbability: severity === 'Critical' ? 95 : 60,
+              citizenImpactScore: trustScore,
+              escalationUrgency: severity === 'Critical' ? 'Immediate' : 'Standard',
+              slaBreachRisk: severity === 'Critical' ? 'High' : 'Low',
+            },
           },
           trust: {
-            trustScore: data.trustScore,
-            fakeProbability: data.fakeProbability,
-            fraudIndicator: data.fakeProbability > 50 ? 'High' : 'Low'
+            trustScore,
+            fakeProbability,
+            fraudIndicator: fakeProbability > 50 ? 'High' : 'Low',
           },
           duplicate: {
-            hasDuplicates: data.duplicateMatches.length > 0,
-            maxSimilarity: data.duplicateMatches[0]?.similarity || 0,
-            duplicates: data.duplicateMatches
+            hasDuplicates: duplicateMatches.length > 0,
+            maxSimilarity: duplicateMatches[0]?.similarity || 0,
+            duplicates: duplicateMatches,
           },
-          recommendations: data.recommendations
+          recommendations: data.recommendations || [],
         });
+      } else {
+        console.error('Analysis failed:', data.error);
       }
     } catch (e) {
       console.error(e);
@@ -114,7 +131,7 @@ export default function AIVerificationPage() {
         <Navbar />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-12">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-32">
         {/* Header */}
         <div className="stagger-fade text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-6 shadow-[0_0_15px_rgba(34,211,238,0.2)]">

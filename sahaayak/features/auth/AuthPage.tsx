@@ -22,8 +22,6 @@ import {
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 
-const supabase = createClient();
-
 // --- Components ---
 
 const GlassCard = ({ children, className }: { children: React.ReactNode, className?: string }) => (
@@ -204,21 +202,37 @@ export default function AuthPage() {
 // --- Sub Forms ---
 
 function LoginForm({ setTab }: { setTab: (tab: AuthState) => void }) {
+  const supabase = createClient();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check URL params for OAuth callback errors
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') === 'auth_callback_error') {
+      setError('Google login failed. Please try again.');
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) alert(error.message);
+    setError(null);
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError) setError(authError.message);
     else window.location.href = '/';
     setLoading(false);
   };
 
   const handleGoogleAuth = async () => {
-    await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/' } });
+    await supabase.auth.signInWithOAuth({ 
+      provider: 'google', 
+      options: { 
+        redirectTo: window.location.origin + '/auth/callback' 
+      } 
+    });
   };
 
   return (
@@ -227,6 +241,12 @@ function LoginForm({ setTab }: { setTab: (tab: AuthState) => void }) {
         <h2 className="font-instrument text-4xl">Welcome back.</h2>
         <p className="text-sm text-black/40">Enter your credentials to access your dashboard.</p>
       </div>
+
+      {error && (
+        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-600 text-sm font-medium">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleLogin} className="space-y-6">
         <InputField icon={Mail} label="Email Address" placeholder="name@example.com" type="email" required value={email} onChange={(e: any) => setEmail(e.target.value)} />
@@ -276,6 +296,7 @@ function LoginForm({ setTab }: { setTab: (tab: AuthState) => void }) {
 }
 
 function RegisterForm({ setTab }: { setTab: (tab: AuthState) => void }) {
+  const supabase = createClient();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     fullName: '', age: '', gender: 'Male', phone: '', occupation: 'Student',
@@ -453,6 +474,7 @@ function RegisterForm({ setTab }: { setTab: (tab: AuthState) => void }) {
 }
 
 function ForgotPasswordForm({ setTab }: { setTab: (tab: AuthState) => void }) {
+  const supabase = createClient();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -489,6 +511,7 @@ function ForgotPasswordForm({ setTab }: { setTab: (tab: AuthState) => void }) {
 }
 
 function OTPForm({ setTab }: { setTab: (tab: AuthState) => void }) {
+  const supabase = createClient();
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState(1);
@@ -540,6 +563,7 @@ function OTPForm({ setTab }: { setTab: (tab: AuthState) => void }) {
 }
 
 function AdminLoginForm({ setTab }: { setTab: (tab: AuthState) => void }) {
+  const supabase = createClient();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);

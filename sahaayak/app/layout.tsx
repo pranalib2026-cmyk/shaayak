@@ -2,6 +2,7 @@ import { Inter, Noto_Sans_Kannada, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "../components/ui/SmoothScrollProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
+import PulseFAB from "../components/PulseFAB";
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
 const kannada = Noto_Sans_Kannada({ subsets: ["kannada"], weight: ['400', '700'], variable: '--font-kannada' });
@@ -23,6 +24,7 @@ export default function RootLayout({
         <LanguageProvider>
           <SmoothScrollProvider>
             {children}
+            <PulseFAB />
           </SmoothScrollProvider>
         </LanguageProvider>
       </body>

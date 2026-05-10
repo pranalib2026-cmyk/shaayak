@@ -7,7 +7,7 @@ import SmoothScrollProvider from '@/components/ui/SmoothScrollProvider';
 export default function HowItWorksPage() {
   return (
     <SmoothScrollProvider>
-      <main className="min-h-screen bg-[#FAFAFA]">
+      <main className="min-h-screen bg-[#0a0a0c]">
         <Navbar />
         <HowItWorks />
       </main>
