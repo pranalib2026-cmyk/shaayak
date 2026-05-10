@@ -199,29 +199,6 @@ Global UI
 ```
 
 ---
-
-## 🚀 Getting Started
-
-```bash
-# 1. Clone the repo
-git clone https://github.com/your-org/sahaayak.git
-cd sahaayak
-
-# 2. Install dependencies
-npm install
-
-# 3. Configure environment variables
-cp .env.example .env.local
-# Fill in your Supabase URL, anon key, and service role key
-
-# 4. Run database migrations
-# Apply supabase_setup.sql, supabase_i18n.sql, supabase_real_ai.sql,
-# and supabase_update.sql via the Supabase dashboard or CLI
-
-# 5. Start the development server
-npm run dev
-```
-
 ## 📄 License
 
 This project is licensed under the MIT License. See `LICENSE` for details.
